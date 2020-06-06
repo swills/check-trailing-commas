@@ -1,0 +1,6 @@
+-   id: check-trailing-commas
+    name: Check Trailing Commas
+    description: Check for commas that will make your code break super subtly
+    entry: check-trailing-commas
+    language: python
+    types: [text]

@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+
+import argparse
+from typing import Optional
+from typing import Sequence
+
+from parso import parse
+
+
+# credit to https://github.com/boxed
+def check_for_trailing_comma(filename, errors=None, lines=None, node=None):
+    if errors is None:
+        errors = []
+
+    if lines is None:
+        assert node is None
+        with open(filename) as f:
+            contents = f.read()
+
+        lines = contents.split('\n')
+        node = parse(contents)
+
+    if hasattr(node, 'children'):
+        for c in node.children:
+            check_for_trailing_comma(filename, errors, lines, c)
+
+    if node.type == 'testlist_star_expr' and len(node.children) == 2:
+        last_child = node.children[-1]
+        if last_child.type == 'operator' and last_child.value == ',':
+
+            if '.fetchone()' not in lines[last_child.start_pos[0] - 1]:
+                print(f'File "{filename}", line {last_child.start_pos[0]}')
+                errors.append(f'{filename}:{last_child.start_pos[0]}')
+
+    return errors
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    parser = argparse.ArgumentParser(description='Checks for broken symlinks.')
+    parser.add_argument('filenames', nargs='*', help='Filenames to check')
+    args = parser.parse_args(argv)
+
+    retv = 0
+
+    for filename in args.filenames:
+        res = check_for_trailing_comma(filename=filename)
+        for r in res:
+            print(f'{r} contains trailing comma')
+            retv = 1
+
+    return retv
+
+
+if __name__ == '__main__':
+    exit(main())
