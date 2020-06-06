@@ -29,7 +29,6 @@ def check_for_trailing_comma(filename, errors=None, lines=None, node=None):
         if last_child.type == 'operator' and last_child.value == ',':
 
             if '.fetchone()' not in lines[last_child.start_pos[0] - 1]:
-                print(f'File "{filename}", line {last_child.start_pos[0]}')
                 errors.append(f'{filename}:{last_child.start_pos[0]}')
 
     return errors
@@ -45,7 +44,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     for filename in args.filenames:
         res = check_for_trailing_comma(filename=filename)
         for r in res:
-            print(f'{r} contains trailing comma')
+            print(r)
             retv = 1
 
     return retv
